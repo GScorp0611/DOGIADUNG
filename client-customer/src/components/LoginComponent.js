@@ -4,59 +4,62 @@ import MyContext from '../contexts/MyContext';
 import withRouter from '../utils/withRouter';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import '../css/Login.css'; // Import file CSS mới
 
 class Login extends Component {
-  static contextType = MyContext; // using this.context to access global state
+  static contextType = MyContext;
+
   constructor(props) {
     super(props);
     this.state = {
-      txtUsername: 'sonkk',
-      txtPassword: '123'
+      txtUsername: '',
+      txtPassword: ''
     };
   }
+
   render() {
     return (
-      <div className="align-center">
-        <h2 className="text-center">CUSTOMER LOGIN</h2>
-        <form>
-          <table className="align-center">
-            <tbody>
-              <tr>
-                <td>Username</td>
-                <td><input type="text" value={this.state.txtUsername} onChange={(e) => { this.setState({ txtUsername: e.target.value }) }} /></td>
-              </tr>
-              <tr>
-                <td>Password</td>
-                <td><input type="password" value={this.state.txtPassword} onChange={(e) => { this.setState({ txtPassword: e.target.value }) }} /></td>
-              </tr>
-              <tr>
-                <td></td>
-                <td><input type="submit" value="LOGIN" onClick={(e) => this.btnLoginClick(e)} /></td>
-              </tr>
-              <tr>
-                <td></td>
-                <td><Link to ='/resetpwd'>Forgot password</Link></td>
-              </tr>
-            </tbody>
-          </table>
+      <div className="login-container">
+        <h2>CUSTOMER LOGIN</h2>
+        <form className="login-form">
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            value={this.state.txtUsername}
+            onChange={(e) => this.setState({ txtUsername: e.target.value })}
+          />
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            value={this.state.txtPassword}
+            onChange={(e) => this.setState({ txtPassword: e.target.value })}
+          />
+          <input
+            type="submit"
+            value="LOGIN"
+            onClick={(e) => this.btnLoginClick(e)}
+          />
+          <div className="forgot-password">
+            <Link to='/resetpwd'>Forgot password?</Link>
+          </div>
         </form>
       </div>
     );
   }
-  // event-handlers
+
   btnLoginClick(e) {
     e.preventDefault();
-    const username = this.state.txtUsername;
-    const password = this.state.txtPassword;
+    const { txtUsername: username, txtPassword: password } = this.state;
     if (username && password) {
-      const account = { username: username, password: password };
+      const account = { username, password };
       this.apiLogin(account);
     } else {
-      //alert('Please input username and password');
       toast.warning('Please input username and password');
     }
   }
-  // apis
+
   apiLogin(account) {
     axios.post('/api/customer/login', account).then((res) => {
       const result = res.data;
@@ -66,10 +69,10 @@ class Login extends Component {
         this.props.navigate('/home');
         toast.success('Welcome to ShoppingOnline');
       } else {
-        //alert(result.message);
         toast.error(result.message);
       }
     });
   }
 }
+
 export default withRouter(Login);

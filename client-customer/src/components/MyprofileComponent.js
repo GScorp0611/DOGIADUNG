@@ -2,9 +2,11 @@ import axios from 'axios';
 import React, { Component } from 'react';
 import { Navigate } from 'react-router-dom';
 import MyContext from '../contexts/MyContext';
+import '../css/Myprofile.css'; // Import file CSS mới
 
 class Myprofile extends Component {
-  static contextType = MyContext; // using this.context to access global state
+  static contextType = MyContext;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -15,44 +17,7 @@ class Myprofile extends Component {
       txtEmail: ''
     };
   }
-  render() {
-    if (this.context.token === '') return (<Navigate replace to='/login' />);
-    return (
-      <div className="align-center">
-        <h2 className="text-center">MY PROFILE</h2>
-        <form>
-          <table className="align-center">
-            <tbody>
-              <tr>
-                <td>Username</td>
-                <td><input type="text" value={this.state.txtUsername} onChange={(e) => { this.setState({ txtUsername: e.target.value }) }} /></td>
-              </tr>
-              <tr>
-                <td>Password</td>
-                <td><input type="password" value={this.state.txtPassword} onChange={(e) => { this.setState({ txtPassword: e.target.value }) }} /></td>
-              </tr>
-              <tr>
-                <td>Name</td>
-                <td><input type="text" value={this.state.txtName} onChange={(e) => { this.setState({ txtName: e.target.value }) }} /></td>
-              </tr>
-              <tr>
-                <td>Phone</td>
-                <td><input type="tel" value={this.state.txtPhone} onChange={(e) => { this.setState({ txtPhone: e.target.value }) }} /></td>
-              </tr>
-              <tr>
-                <td>Email</td>
-                <td><input type="email" value={this.state.txtEmail} onChange={(e) => { this.setState({ txtEmail: e.target.value }) }} /></td>
-              </tr>
-              <tr>
-                <td></td>
-                <td><input type="submit" value="UPDATE" onClick={(e) => this.btnUpdateClick(e)} /></td>
-              </tr>
-            </tbody>
-          </table>
-        </form>
-      </div>
-    );
-  }
+
   componentDidMount() {
     if (this.context.customer) {
       this.setState({
@@ -64,33 +29,76 @@ class Myprofile extends Component {
       });
     }
   }
-  // event-handlers
-  btnUpdateClick(e) {
+
+  render() {
+    if (this.context.token === '') return (<Navigate replace to='/login' />);
+
+    return (
+      <div className="myprofile-container">
+        <h2>My Profile</h2>
+        <div className="form-container">
+          <form>
+            <table className="form-table">
+              <tbody>
+                <tr>
+                  <th>Username</th>
+                  <td><input type="text" className="input-field" value={this.state.txtUsername} onChange={(e) => this.setState({ txtUsername: e.target.value })} /></td>
+                </tr>
+                <tr>
+                  <th>Password</th>
+                  <td><input type="password" className="input-field" value={this.state.txtPassword} onChange={(e) => this.setState({ txtPassword: e.target.value })} /></td>
+                </tr>
+                <tr>
+                  <th>Name</th>
+                  <td><input type="text" className="input-field" value={this.state.txtName} onChange={(e) => this.setState({ txtName: e.target.value })} /></td>
+                </tr>
+                <tr>
+                  <th>Phone</th>
+                  <td><input type="tel" className="input-field" value={this.state.txtPhone} onChange={(e) => this.setState({ txtPhone: e.target.value })} /></td>
+                </tr>
+                <tr>
+                  <th>Email</th>
+                  <td><input type="email" className="input-field" value={this.state.txtEmail} onChange={(e) => this.setState({ txtEmail: e.target.value })} /></td>
+                </tr>
+                <tr>
+                  <td colSpan="2">
+                    <button className="submit-button" onClick={(e) => this.btnUpdateClick(e)}>Update</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Event Handlers
+  btnUpdateClick = (e) => {
     e.preventDefault();
-    const username = this.state.txtUsername;
-    const password = this.state.txtPassword;
-    const name = this.state.txtName;
-    const phone = this.state.txtPhone;
-    const email = this.state.txtEmail;
-    if (username && password && name && phone && email) {
-      const customer = { username: username, password: password, name: name, phone: phone, email: email };
+    const { txtUsername, txtPassword, txtName, txtPhone, txtEmail } = this.state;
+
+    if (txtUsername && txtPassword && txtName && txtPhone && txtEmail) {
+      const customer = { username: txtUsername, password: txtPassword, name: txtName, phone: txtPhone, email: txtEmail };
       this.apiPutCustomer(this.context.customer._id, customer);
     } else {
-      alert('Please input username and password and name and phone and email');
+      alert('Please input all fields.');
     }
   }
-  // apis
-  apiPutCustomer(id, customer) {
+
+  // API Calls
+  apiPutCustomer = (id, customer) => {
     const config = { headers: { 'x-access-token': this.context.token } };
     axios.put('/api/customer/customers/' + id, customer, config).then((res) => {
       const result = res.data;
       if (result) {
-        alert('OK BABY!');
+        alert('Profile updated successfully!');
         this.context.setCustomer(result);
       } else {
-        alert('SORRY BABY!');
+        alert('Update failed. Please try again.');
       }
     });
   }
 }
+
 export default Myprofile;
